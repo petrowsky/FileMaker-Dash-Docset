@@ -43,9 +43,9 @@ $i = 0;
 echo $color( "Processing files...\n" )->green->bold;
 
 $types = [
-    'Command'   => '/script-steps-reference.html#',
-    'Functions' => '/functions-reference.html#',
-    'Events'    => '/script-triggers-reference.html#',
+    'Command'  => 'WebWorks_Breadcrumb_Link" href="script-steps-reference.html#',
+    'Function' => 'WebWorks_Breadcrumb_Link" href="functions-reference.html#',
+    'Event'    => 'WebWorks_Breadcrumb_Link" href="script-triggers-reference.html#',
 ];
 
 foreach ( $htmlFiles as $file ) {
@@ -62,10 +62,11 @@ foreach ( $htmlFiles as $file ) {
         $html_content = new Crawler ( $file_content );
 
         $title = $html_content->filterXPath('//head/title')->text();
-                
+
         /* Only generate data for the specific types. */
         foreach ( $types as $type => $match )
         {
+            // Matching within each html doc for a path back to one of the above types.
             $current_type = strpos ( $file_content, $match ) ? $type : $current_type;
         }
 
@@ -73,7 +74,11 @@ foreach ( $htmlFiles as $file ) {
         {
             $indexOutput[$i]['name'] = $title;
             $indexOutput[$i]['type'] = $current_type;
-            $indexOutput[$i]['path'] = '/FMP_Help/' . $current_file;
+            $indexOutput[$i]['path'] = $current_file;
+        } else {
+            $indexOutput[$i]['name'] = $title;
+            $indexOutput[$i]['type'] = 'Guide';
+            $indexOutput[$i]['path'] = $current_file;
         }
     }
     $i++;
@@ -121,7 +126,7 @@ try
 
 /* Copy Bundle Help Files */
 try {
-    $bundle->mirror ( $sourcePath, DOCSET_DESTINATION . DOCSET_BUNDLE . '/Contents/Resources/Documents');
+    $bundle->mirror ( $htmlPath, DOCSET_DESTINATION . DOCSET_BUNDLE . '/Contents/Resources/Documents');
 } catch ( Exception $e ) {
     echo 'Caught exception: ',  $e->getMessage(), "\n";
 }
@@ -164,9 +169,10 @@ if ( $db = new SQLite3( $indexPath ))
     }
 
     /* Add indexing results to new table. */
+    /* https://kapeli.com/docsets#createsqlite */
     foreach ( $indexOutput as $row )
     {
-        $insertQuery = "INSERT OR IGNORE INTO searchIndex(name, type, path) VALUES ('" . $row['name'] ."','" . $row['type'] . "','" . $row['path'] . "');";
+        $insertQuery = "INSERT OR IGNORE INTO searchIndex(name, type, path) VALUES ('" . $row['name'] . "','" . $row['type'] . "','" . $row['path'] . "');";
         $insertQueryResults = @$db->query ( $insertQuery );
         if ( $insertQueryResults === false )
         {
@@ -176,6 +182,40 @@ if ( $db = new SQLite3( $indexPath ))
 } else {
     die($err);
 }
+
+echo $color( "Cleaning up the HTML...\n" )->green->bold;
+
+// Post process the html files to remove javascript and update urls.
+$docFiles = new DirectoryIterator ( DOCSET_DESTINATION . DOCSET_BUNDLE . '/Contents/Resources/Documents' );
+
+foreach ( $docFiles as $file ) {
+    if ( $file->isDot() ) continue;
+
+    if ( preg_match ( "/\.htm.$/", $file->getFilename() )) {
+
+        libxml_use_internal_errors(true);
+        $dom = new DOMDocument();
+        $dom->preserveWhiteSpace = false;
+        $dom->formatOutput = true;
+        $dom->loadHTMLFile($file->getPathname());
+
+        libxml_use_internal_errors(false);
+        $xpath = new DOMXPath($dom);
+
+        foreach ($xpath->query('//head/script') as $node) {
+            $node->parentNode->removeChild($node);
+        }
+        // Walk all urls and adust the relative path.
+        $anchors = $xpath->query( "//a" );
+        foreach($anchors as $a) {
+            $url = $a->getAttribute('href');
+            $url = str_replace("../FMP_Help/", "", $url);
+            $a->setAttribute('href', $url);
+        }
+        $dom->saveHTMLFile($file->getPathname());
+    }
+}
+
 
 echo $color( "Docset generation complete!\n" )->green->bold;
 echo $color( "    " . $bundle->makePathRelative ( DOCSET_DESTINATION . DOCSET_BUNDLE, __DIR__ ) )->green . PHP_EOL;
