@@ -1,9 +1,9 @@
 {
-    "require": {
-        "symfony/dom-crawler": "2.5.*",
-        "symfony/css-selector": "2.5.*",
-        "keboola/csv": "1.*",
-        "kevinlebrun/colors.php": "dev-master",
-        "symfony/filesystem": "2.5"
-    }
+  "require": {
+    "symfony/dom-crawler": "6.1.*",
+    "symfony/css-selector": "6.1.*",
+    "keboola/csv": "1.*",
+    "kevinlebrun/colors.php": "dev-master",
+    "symfony/filesystem": "6.1"
+  }
 }
