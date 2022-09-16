@@ -1,18 +1,26 @@
-FileMaker Pro 16
-=======================
+# Dash Documentation for Claris/FileMaker
 
-* [Jason P. Scharf](https://github.com/iNtergrated/) [@jpscharf](https://twitter.com/jpscharf)
+- [Jason P. Scharf](https://github.com/iNtergrated/) [@jpscharf](https://twitter.com/jpscharf) & others.
 
-## Docset Generation ##
+## Docset Generation
 
-1. Clone the docset generation [repository](git@github.com:iNtergrated/FileMaker-Dash-Docset.git): ````git clone git@github.com:iNtergrated/FileMaker-Dash-Docset.git````
+- Clone the this [repository](git@github.com:petrowsky/FileMaker-Dash-Docset.git):
 
-2. For FileMaker < 15, use master, otherwise checkout the branch for your version, e.g. `checkout FileMaker-18`
-3. Download the FileMaker Help File: `https://fmhelp.filemaker.com/help/18/fmp/download/fmp-18-help-en.zip`
-    > `curl https://fmhelp.filemaker.com/help/18/fmp/download/fmp-18-help-en.zip -O`
-4. Extract the zip file, rename the folder to `FileMaker Help`, and copy to the root of this folder.
-    > `unzip fmp-18-help-en.zip`
-    > `mv en "FileMaker Help"`
-5. Install dependencies: ````composer install````
-6. Generate the docset: ````php generate````
-7. The generated docset can be found inside the build folder: ````build/FileMaker.docset````
+  > `git clone git@github.com:petrowsky/FileMaker-Dash-Docset.git`
+
+- Download the FileMaker Help File -> [Claris support page](https://support.claris.com/s/article/Claris-FileMaker-19-Documentation-Releases-Notes-and-FileMaker-Help?language=en_US) or...
+
+  > `curl https://help.claris.com/downloads/fmp-19-help-en.zip -O`
+
+- Extract the zip file, rename the folder to **FileMaker Help**, and copy to the root of this folder.
+
+  > ```
+  > unzip fmp-19-help-en.zip
+  > mv en "FileMaker Help"
+  > ```
+
+- Install dependencies: `composer install` (need composer [on a Mac](https://brew.sh)?, [on Windows](https://getcomposer.org/doc/00-intro.md)?)
+
+- Generate the docset using: `php generate`
+
+- The generated docset can be found inside the build folder: **`build/FileMaker.docset`**
